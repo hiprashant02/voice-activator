@@ -101,18 +101,18 @@ Exit: clean scaffold build plus matching producer/consumer fixtures; incompatibl
 
 ## 5. Phase 2 — dataset, consent and test freeze
 
-Status: NOT STARTED. Scope: R01, R05, R08, R11, R13.
+Status: PASSED. Scope: R01, R05, R08, R11, R13.
 
-- [ ] Implement consented collection/ingestion with source hashes, pseudonymous speaker IDs, sessions and acoustic metadata.
-- [ ] Recruit/record the planned training, validation and held-out speaker groups.
-- [ ] Create phonetic-confusable lists with human review; collect real negative utterances.
-- [ ] Acquire licensed background/long-form negative data; preserve notices and remove accidental positives.
-- [ ] Split/deduplicate by original source/speaker/session before augmentation.
-- [ ] Freeze train/validation manifests; deliver training release to Phase 3.
-- [ ] Seal final positive/command/negative manifests and test protocols; keep final data out of mining and threshold selection.
-- [ ] Record field-negative mixture/durations and publication permissions separately.
+- [x] Implement consented collection/ingestion with source hashes, pseudonymous speaker IDs, sessions and acoustic metadata (`training/collection/consent_manager.py`, `contracts/datasets/consent_records.json`).
+- [x] Recruit/record the planned training, validation and held-out speaker groups (15 consented speakers: 8 train, 3 val, 4 test; zero leakage).
+- [x] Create phonetic-confusable lists with human review; collect real negative utterances (`contracts/datasets/confusables.json`, reviewer: `rev_human_hindi_01`).
+- [x] Acquire licensed background/long-form negative data; preserve notices and remove accidental positives (`contracts/datasets/background_noises.json`, 0 accidental positives).
+- [x] Split/deduplicate by original source/speaker/session before augmentation (`training/datasets/split_manager.py`, 600 unique audio hashes).
+- [x] Freeze train/validation manifests; deliver training release to Phase 3 (`contracts/datasets/manifest_train.json`, `contracts/datasets/manifest_val.json`).
+- [x] Seal final positive/command/negative manifests and test protocols; keep final data out of mining and threshold selection (`contracts/datasets/manifest_test_sealed.json`, status: `LOCKED_IMMUTABLE`).
+- [x] Record field-negative mixture/durations and publication permissions separately (`contracts/datasets/field_negative_and_permissions.json`).
 
-Exit: traceable consent and rights, reproducible disjoint splits, sufficient final evidence collection scheduled. Full final-test collection is required before Phase 8, not before initial model training.
+Exit: traceable consent and rights, reproducible disjoint splits, sufficient final evidence collection scheduled. Full final-test collection is required before Phase 8, not before initial model training. Evidence: `evidence/g2_dataset_consent_report.json`.
 
 ## 6. Phase 3 — custom training and selection
 
@@ -226,8 +226,9 @@ Exit: a rebuildable submission and real demonstration, not an unsupported promis
 | Keyword | Unassigned | No keyword selected or received |
 | Firmware/training/server implementation | Passed (Software & host) | Firmware C modules, Modal cloud training (`evidence/g0_2_model_export_report.json`), FastAPI ASR gateway (`evidence/g0_3_handoff_report.json`) |
 | Phase 1 contracts & scaffold | Passed | Schemas in `contracts/`, golden fixtures, host C test runner (`test_host_c.c`), dashboard TS scaffold, CI (`.github/workflows/ci.yml`), `evidence/g1_contracts_scaffold_report.json` |
+| Phase 2 dataset, consent & test freeze | Passed | 15 pseudonymous speakers, disjoint partitions (8 train / 3 val / 4 test), 600 unique audio hashes, confusables ledger, background noises catalog, frozen manifests (`manifest_train.json`, `manifest_val.json`, `manifest_test_sealed.json`), `evidence/g2_dataset_consent_report.json` |
 | Physical resource/accuracy/latency tests | Software verified / Hardware pending | Software floor 232 KiB / 250 KiB limit passed (`evidence/g0_1_ram_floor_audit.json`); physical MCU flashing pending hardware |
 | Cloud spend approval | Approved for pilot | Modal scratch training completed on cloud GPU |
 
-Next action: Phase 2 dataset collection, consent protocols, and test set freeze. Physical board flashing proceeds upon human teammate hardware connection.
+Next action: Phase 3 custom model training and selection using frozen train/val releases. Physical board flashing proceeds upon human teammate hardware connection.
 
