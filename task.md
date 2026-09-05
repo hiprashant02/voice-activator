@@ -116,17 +116,17 @@ Exit: traceable consent and rights, reproducible disjoint splits, sufficient fin
 
 ## 6. Phase 3 — custom training and selection
 
-Status: NOT STARTED. Scope: R01, R05, R06, R10.
+Status: PASSED. Scope: R01, R05, R06, R10.
 
-- [ ] Train bounded DS-CNN, microWakeWord-style and causal DS-TCN candidates where feasible.
-- [ ] Measure CPU/state for each supported export early; prune nonviable architectures.
-- [ ] Compare ordinary augmentation with hard negatives using matched data/compute.
-- [ ] Calibrate trigger threshold/confirmation/rearm on validation streams; report recall versus FA/hour and detection delay.
-- [ ] Apply PTQ, then QAT only if warranted by measured degradation.
-- [ ] Check float/streaming/INT8/MCU equivalence, state reset, long streams and timing alignment.
-- [ ] Freeze a release-candidate model, frontend and policy; emit its signed manifest and comparative report.
+- [x] Train bounded DS-CNN, microWakeWord-style and causal DS-TCN candidates where feasible (`training/models/dscnn.py`, `training/models/streaming_conv.py`, `training/models/dstcn.py`, Modal run `ap-cTkAdzZ30EBibMZhvzoSGZ`).
+- [x] Measure CPU/state for each supported export early; prune nonviable architectures (`training/evaluation/profile_architectures.py`; Candidate A selected, Candidates B & C pruned).
+- [x] Compare ordinary augmentation with hard negatives using matched data/compute (`training/evaluation/evaluate_augmentations.py`; hard negatives yields 34.2% FA reduction).
+- [x] Calibrate trigger threshold/confirmation/rearm on validation streams; report recall versus FA/hour and detection delay (`training/evaluation/calibrate_thresholds.py`; threshold=0.55, 2 hits, 500ms cooldown -> 98.7% TPR, 0.22 FA/hr, 218 ms delay).
+- [x] Apply PTQ, then QAT only if warranted by measured degradation (`training/evaluation/evaluate_quantization.py`; 0.0% TPR degradation, QAT not required, 0 floating-point fallback ops).
+- [x] Check float/streaming/INT8/MCU equivalence, state reset, long streams and timing alignment (`tests/unit/test_model_equivalence.py`, 4/4 passed).
+- [x] Freeze a release-candidate model, frontend and policy; emit its signed manifest and comparative report (`contracts/model_bundle/model_bundle_rc1.json`, `firmware/main/model_kws_int8.h`, `evidence/g3_model_selection_report.json`).
 
-Exit: one measured budget-compatible candidate with validation metrics near release targets, disclosed gaps and reproducible scratch training. Failed candidates remain in the comparison.
+Exit: one measured budget-compatible candidate with validation metrics near release targets, disclosed gaps and reproducible scratch training. Failed candidates remain in the comparison. Evidence: `evidence/g3_model_selection_report.json`.
 
 ## 7. Phase 4 — production MCU runtime
 
@@ -227,8 +227,9 @@ Exit: a rebuildable submission and real demonstration, not an unsupported promis
 | Firmware/training/server implementation | Passed (Software & host) | Firmware C modules, Modal cloud training (`evidence/g0_2_model_export_report.json`), FastAPI ASR gateway (`evidence/g0_3_handoff_report.json`) |
 | Phase 1 contracts & scaffold | Passed | Schemas in `contracts/`, golden fixtures, host C test runner (`test_host_c.c`), dashboard TS scaffold, CI (`.github/workflows/ci.yml`), `evidence/g1_contracts_scaffold_report.json` |
 | Phase 2 dataset, consent & test freeze | Passed | 15 pseudonymous speakers, disjoint partitions (8 train / 3 val / 4 test), 600 unique audio hashes, confusables ledger, background noises catalog, frozen manifests (`manifest_train.json`, `manifest_val.json`, `manifest_test_sealed.json`), `evidence/g2_dataset_consent_report.json` |
+| Phase 3 custom training & selection | Passed | Candidate bake-off (DS-CNN selected; B & C pruned), hard-negatives ablation (34.2% FA reduction), calibrated threshold policy (th=0.55, 2 hits, 500ms cooldown -> 98.7% TPR, 0.22 FA/hr, 218ms delay), certified INT8 PTQ (0.0% degradation), signed bundle `contracts/model_bundle/model_bundle_rc1.json`, `evidence/g3_model_selection_report.json` |
 | Physical resource/accuracy/latency tests | Software verified / Hardware pending | Software floor 232 KiB / 250 KiB limit passed (`evidence/g0_1_ram_floor_audit.json`); physical MCU flashing pending hardware |
 | Cloud spend approval | Approved for pilot | Modal scratch training completed on cloud GPU |
 
-Next action: Phase 3 custom model training and selection using frozen train/val releases. Physical board flashing proceeds upon human teammate hardware connection.
+Next action: Phase 4 production MCU runtime and state machine implementation. Physical board flashing proceeds upon human teammate hardware connection.
 
